@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "frontend: dev",
+            "type": "npm",
+            "script": "dev",
+            "path": "alumni-link-full-integrated/alumni-link-integrated",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "fileLocation": "absolute",
+                "pattern": {
+                    "regexp": "^(.*)$",
+                    "message": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": "ready in|Local:"
+                }
+            }
+        }
+    ]
+}
