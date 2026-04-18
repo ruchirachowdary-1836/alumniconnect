@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model UserProfile {
+  id                 String              @id @default(cuid())
+  clerkUserId        String?             @unique
+  email              String?             @unique
+  role               String
+  fullName           String
+  rollNumber         String              @unique
+  batchYear          Int?
+  branch             String?
+  company            String?
+  packageLpa         Float?
+  drivesAttended     Int?
+  backlogs           String?
+  internship         String?
+  mentorAreas        String?
+  bio                String?
+  acceptedGuidelines Boolean             @default(false)
+  isMentorActive     Boolean             @default(false)
+  sentRequests       MentorshipRequest[] @relation("StudentRequests")
+  receivedRequests   MentorshipRequest[] @relation("AlumniRequests")
+}
+
+model MentorshipRequest {
+  id                   String         @id @default(cuid())
+  studentId            String
+  alumniId             String
+  subject              String
+  goals                String
+  message              String
+  preferredMode        String
+  availability         String?
+  status               String         @default("PENDING")
+  alumniResponseMessage String?
+  student              UserProfile    @relation("StudentRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  alumni               UserProfile    @relation("AlumniRequests", fields: [alumniId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, status])
+  @@index([alumniId, status])
+}
