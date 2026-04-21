@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { getSafeAuth } from "@/lib/auth";
-import { isClerkConfigured, missingAuthMessage } from "@/lib/auth-config";
 import { homeStats } from "@/lib/seed-data";
 
 export default async function HomePage() {
@@ -30,13 +29,6 @@ export default async function HomePage() {
                   Learn More
                 </Link>
               </div>
-
-              {!isClerkConfigured ? (
-                <div className="empty-state" style={{ marginTop: 18, textAlign: "left" }}>
-                  <strong>Authentication setup pending.</strong>
-                  <p className="muted">{missingAuthMessage}</p>
-                </div>
-              ) : null}
             </div>
           </div>
         </div>
