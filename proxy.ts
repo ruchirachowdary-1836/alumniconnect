@@ -4,11 +4,13 @@ import { NextResponse } from "next/server";
 import { isClerkConfigured } from "@/lib/auth-config";
 
 const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/onboarding(.*)",
-  "/mentors/(.*)",
-  "/api/onboarding(.*)",
   "/api/mentorship(.*)",
+  "/api/referrals(.*)",
+  "/api/opportunities(.*)",
+  "/api/forum(.*)",
+  "/api/chat(.*)",
+  "/api/events(.*)",
+  "/api/admin(.*)",
 ]);
 
 const clerkProxy = clerkMiddleware(async (auth, req) => {

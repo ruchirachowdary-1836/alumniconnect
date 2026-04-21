@@ -1,6 +1,7 @@
 export type SeedProfile = {
   rollNumber: string;
   name: string;
+  email?: string;
   branch?: string;
   graduationYear?: number;
   company?: string;
@@ -13,6 +14,7 @@ export type SeedProfile = {
 };
 
 export const alumniSeed: SeedProfile[] = [
+  { rollNumber: "ALUMNI-DEMO-001", name: "Ashrita Guntur", email: "ashritaguntur@gmail.com", company: "Microsoft", packageLpa: 24, graduationYear: 2024, branch: "CSE", mentorAreas: ["Mentorship", "Career Planning", "Mock Interviews"] },
   { rollNumber: "22WH1A6606", name: "G.Revathi Sai Nageswari", company: "Infosys", packageLpa: 3.6, graduationYear: 2026, branch: "CSE (AI & ML)", mentorAreas: ["Placements", "Interview Prep", "Career Planning"] },
   { rollNumber: "22WH1A6607", name: "Yashaswiny Sripada", company: "Infosys", packageLpa: 3.6, graduationYear: 2026, branch: "CSE (AI & ML)", mentorAreas: ["Placements", "Interview Prep", "Career Planning"] },
   { rollNumber: "22WH1A6624", name: "Chiluvuri Monisree Lakshmi Bhavya", company: "Infosys", packageLpa: 3.6, graduationYear: 2026, branch: "CSE (AI & ML)", mentorAreas: ["Placements", "Interview Prep", "Career Planning"] },
