@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { StatusBadge } from "@/components/status-badge";
 import { DashboardOverview } from "@/components/dashboard-overview";
@@ -169,6 +170,25 @@ export default async function AlumniDashboardPage() {
 
       <section className="page-section">
         <div className="shell">
+          <section className="dashboard-panel" style={{ marginBottom: 26 }}>
+            <div className="section-header">
+              <div>
+                <h2>Alumni Actions</h2>
+                <p className="section-subtitle">Post opportunities and events directly from the alumni portal.</p>
+              </div>
+              <span className="tab-pill active">Alumni tools</span>
+            </div>
+
+            <div className="split-actions">
+              <Link href="/opportunities" className="button button-secondary">
+                Post Opportunity
+              </Link>
+              <Link href="/events" className="button button-primary">
+                Post Event
+              </Link>
+            </div>
+          </section>
+
           {(profile.rollNumber === "23WH1A6627" ||
             profile.email?.toLowerCase() === "23wh1a6627@bvrithyderabad.edu.in") ? (
             <div className="tab-row" style={{ marginBottom: 18 }}>

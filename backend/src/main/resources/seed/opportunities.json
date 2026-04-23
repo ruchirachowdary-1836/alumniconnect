@@ -1,0 +1,30 @@
+[
+  {
+    "id": "spring-seed-opp-1",
+    "title": "Backend Developer Intern",
+    "company": "Infosys",
+    "type": "Internship",
+    "location": "Hyderabad",
+    "description": "Opportunity for students with Java, SQL, and REST API knowledge.",
+    "applyLink": "https://example.com/apply/backend-intern",
+    "postedByName": "Ashrita Guntur",
+    "postedByEmail": "ashritaguntur@gmail.com",
+    "postedByRollNumber": "22WH1A6639",
+    "createdAt": "2026-04-23T10:00:00+05:30",
+    "status": "OPEN"
+  },
+  {
+    "id": "spring-seed-opp-2",
+    "title": "Graduate Software Engineer",
+    "company": "Cognizant",
+    "type": "Job",
+    "location": "Remote",
+    "description": "Entry-level role focused on web application support and backend integration.",
+    "applyLink": "https://example.com/apply/graduate-se",
+    "postedByName": "Alumni Connect Team",
+    "postedByEmail": "portal@bvrith.edu",
+    "postedByRollNumber": "FACULTY",
+    "createdAt": "2026-04-22T14:30:00+05:30",
+    "status": "OPEN"
+  }
+]

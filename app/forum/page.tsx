@@ -1,24 +1,8 @@
-import Link from "next/link";
-
-import { getCurrentProfile } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { forumPosts as fallbackForumPosts } from "@/lib/demo-content";
-
-const allCategories = [
-  "All",
-  "General",
-  "Placements",
-  "Interview Tips",
-  "Career Advice",
-  "Campus Life",
-];
-
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(value);
-}
+import { getCurrentProfile, getSignedInIdentity } from "@/lib/auth";
+import { getAdminAccess } from "@/lib/admin-auth";
+import { resolveChatProfile } from "@/lib/chat-service";
+import { ForumBoard } from "@/components/forum-board";
+import { forumCategories, getForumPosts } from "@/lib/forum-data";
 
 export default async function ForumPage({
   searchParams,
@@ -26,57 +10,36 @@ export default async function ForumPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   let profile = null;
+  const adminAccess = await getAdminAccess();
 
   try {
     profile = await getCurrentProfile();
   } catch {
     profile = null;
   }
+
+  if (!profile) {
+    profile = await resolveChatProfile();
+  }
+
+  if (!profile && adminAccess.isAdmin) {
+    const { email, fullName } = await getSignedInIdentity();
+    profile = {
+      id: "faculty-forum",
+      clerkUserId: null,
+      email,
+      role: "FACULTY",
+      fullName: fullName || adminAccess.email || "Faculty Admin",
+      rollNumber: "FACULTY",
+    };
+  }
   const params = (await searchParams) ?? {};
   const categoryParam = Array.isArray(params.category) ? params.category[0] : params.category;
   const activeCategory =
-    categoryParam && allCategories.includes(categoryParam) ? categoryParam : "All";
-
-  let posts: Array<{
-    id: string;
-    title: string;
-    content: string;
-    category: string;
-    createdAt: Date;
-    author: { fullName: string; role: string };
-    replies: Array<{ id: string; content: string; createdAt: Date; author: { fullName: string } }>;
-  }> = [];
-
-  try {
-    posts = await prisma.forumPost.findMany({
-      where: activeCategory === "All" ? undefined : { category: activeCategory },
-      include: {
-        author: true,
-        replies: {
-          include: { author: true },
-          orderBy: { createdAt: "asc" },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  } catch {
-    posts = fallbackForumPosts
-      .filter((post) => activeCategory === "All" || post.category === activeCategory)
-      .map((post, index) => ({
-        id: `fallback-post-${index}`,
-        title: post.title,
-        content: post.summary,
-        category: post.category,
-        createdAt: new Date(post.date),
-        author: { fullName: post.author, role: post.author === "Admin" ? "ADMIN" : "ALUMNI" },
-        replies: post.replies.map((reply, replyIndex) => ({
-          id: `fallback-post-${index}-reply-${replyIndex}`,
-          content: reply,
-          createdAt: new Date(post.date),
-          author: { fullName: "Community Reply" },
-        })),
-      }));
-  }
+    categoryParam && forumCategories.includes(categoryParam as (typeof forumCategories)[number])
+      ? categoryParam
+      : "All";
+  const posts = await getForumPosts(activeCategory);
 
   return (
     <>
@@ -89,115 +52,13 @@ export default async function ForumPage({
 
       <section className="page-section">
         <div className="shell">
-          <div className="section-header">
-            <div className="tab-row">
-              {allCategories.map((category) => (
-                <Link
-                  key={category}
-                  href={category === "All" ? "/forum" : `/forum?category=${encodeURIComponent(category)}`}
-                  className={`tab-pill ${activeCategory === category ? "active" : ""}`}
-                >
-                  {category}
-                </Link>
-              ))}
-            </div>
-            {profile ? (
-              <span className="tab-pill active">Posting as {profile.fullName}</span>
-            ) : (
-              <Link href="/sign-in" className="button button-primary">
-                Sign in to post
-              </Link>
-            )}
-          </div>
-
-          {profile ? (
-            <form action="/api/forum" method="post" className="dashboard-panel form-grid" style={{ marginBottom: 18 }}>
-              <div className="section-header" style={{ marginBottom: 0 }}>
-                <div>
-                  <h3>Start a new discussion</h3>
-                  <p className="card-copy">Share a question, placement tip, or a request for advice.</p>
-                </div>
-              </div>
-              <label>
-                Title
-                <input name="title" required placeholder="Example: Best way to prepare for service-based interviews?" />
-              </label>
-              <label>
-                Category
-                <select name="category" defaultValue={activeCategory === "All" ? "General" : activeCategory}>
-                  {allCategories
-                    .filter((category) => category !== "All")
-                    .map((category) => (
-                      <option key={category}>{category}</option>
-                    ))}
-                </select>
-              </label>
-              <label>
-                Content
-                <textarea
-                  name="content"
-                  required
-                  placeholder="Describe your question clearly so alumni and students can respond with useful detail."
-                />
-              </label>
-              <button className="button button-secondary" type="submit">
-                Publish post
-              </button>
-            </form>
-          ) : null}
-
-          {posts.length === 0 ? (
-            <div className="empty-state">
-              No discussions match this category yet.
-            </div>
-          ) : (
-            posts.map((post) => (
-              <article key={post.id} className="forum-card">
-                <div className="section-header">
-                  <div>
-                    <h3>{post.title}</h3>
-                    <p className="card-copy">
-                      {post.author.fullName} ({post.author.role}) - {formatDate(post.createdAt)}
-                    </p>
-                  </div>
-                  <span className="tab-pill active">{post.category}</span>
-                </div>
-
-                <p>{post.content}</p>
-
-                {post.replies.map((reply) => (
-                  <div key={reply.id} className="comment-box">
-                    <strong>{reply.author.fullName}</strong>
-                    <p style={{ margin: "8px 0 0" }}>{reply.content}</p>
-                    <p className="small muted" style={{ margin: "8px 0 0" }}>
-                      {formatDate(reply.createdAt)}
-                    </p>
-                  </div>
-                ))}
-
-                {profile ? (
-                  <form
-                    action={`/api/forum/${post.id}/reply`}
-                    method="post"
-                    className="form-grid"
-                    style={{ marginTop: 14 }}
-                  >
-                    <label>
-                      Add reply
-                      <textarea
-                        name="content"
-                        required
-                        placeholder="Reply with an answer, resource, or encouragement."
-                      />
-                    </label>
-                    <button className="button button-ghost" type="submit">
-                      Reply
-                    </button>
-                  </form>
-                ) : null}
-              </article>
-            ))
-          )}
+          <ForumBoard
+            initialPosts={posts}
+            categories={forumCategories}
+            activeCategory={activeCategory}
+            profile={profile ? { fullName: profile.fullName, role: profile.role } : null}
+            isAdmin={adminAccess.isAdmin}
+          />
         </div>
       </section>
     </>

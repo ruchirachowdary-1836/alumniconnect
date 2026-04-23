@@ -29,16 +29,19 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: auto;
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
   color: var(--text);
   background:
     radial-gradient(circle at top left, rgba(57, 193, 184, 0.08), transparent 20%),
     linear-gradient(180deg, #f7fbfe 0%, #edf3f8 24%, #ecf2f8 100%);
   font-family: var(--font-body), sans-serif;
+  overflow-y: auto;
 }
 
 a {
@@ -665,11 +668,14 @@ textarea::placeholder {
 
 .chat-sidebar {
   padding: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .chat-main {
   display: grid;
   grid-template-rows: auto 1fr auto;
+  min-height: 540px;
 }
 
 .chat-header {
@@ -694,6 +700,8 @@ textarea::placeholder {
   gap: 12px;
   align-content: start;
   background: linear-gradient(180deg, #fbfdff 0%, #f5faff 100%);
+  overflow-y: auto;
+  max-height: 56vh;
 }
 
 .bubble {
@@ -719,7 +727,7 @@ textarea::placeholder {
 
 .chat-compose {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 10px;
   padding: 14px;
   border-top: 1px solid var(--line);
@@ -853,6 +861,28 @@ textarea::placeholder {
   margin-top: 48px;
   background: linear-gradient(90deg, #0f5d8c, #0c83ad);
   color: white;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.chat-sidebar::-webkit-scrollbar,
+.chat-thread::-webkit-scrollbar {
+  width: 10px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.chat-sidebar::-webkit-scrollbar-thumb,
+.chat-thread::-webkit-scrollbar-thumb {
+  background: rgba(23, 62, 115, 0.28);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.chat-sidebar::-webkit-scrollbar-track,
+.chat-thread::-webkit-scrollbar-track {
+  background: rgba(216, 227, 238, 0.35);
 }
 
 .footer-grid {

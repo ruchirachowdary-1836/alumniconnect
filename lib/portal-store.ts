@@ -35,6 +35,19 @@ export type StoredOpportunity = {
   status: string;
 };
 
+export type StoredEvent = {
+  id: string;
+  title: string;
+  description: string;
+  eventType: string;
+  location?: string | null;
+  link?: string | null;
+  eventDate: string;
+  createdByName: string;
+  createdByEmail?: string;
+  createdByRollNumber: string;
+};
+
 export type StoredReferralRequest = {
   id: string;
   opportunityId: string;
@@ -50,6 +63,57 @@ export type StoredReferralRequest = {
   status: string;
   createdAt: string;
   alumniResponseMessage?: string | null;
+};
+
+export type StoredChatMessage = {
+  id: string;
+  senderRollNumber: string;
+  senderEmail?: string;
+  senderName: string;
+  senderRole: string;
+  receiverRollNumber: string;
+  receiverEmail?: string;
+  receiverName: string;
+  receiverRole: string;
+  content: string;
+  createdAt: string;
+  attachments?: StoredChatAttachment[];
+};
+
+export type StoredChatAttachment = {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  source: "upload" | "drive";
+  url: string;
+};
+
+export type StoredForumReply = {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    fullName: string;
+    role: string;
+    rollNumber: string;
+    email?: string;
+  };
+};
+
+export type StoredForumPost = {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  createdAt: string;
+  author: {
+    fullName: string;
+    role: string;
+    rollNumber: string;
+    email?: string;
+  };
+  replies: StoredForumReply[];
 };
 
 type StorePayload = {
@@ -69,9 +133,27 @@ function getStoredOpportunities(privateMetadata: Record<string, unknown>) {
     : [];
 }
 
+function getStoredEvents(privateMetadata: Record<string, unknown>) {
+  return Array.isArray(privateMetadata.portalEvents)
+    ? (privateMetadata.portalEvents as StoredEvent[])
+    : [];
+}
+
 function getStoredReferralRequests(privateMetadata: Record<string, unknown>) {
   return Array.isArray(privateMetadata.portalReferralRequests)
     ? (privateMetadata.portalReferralRequests as StoredReferralRequest[])
+    : [];
+}
+
+function getStoredChatMessages(privateMetadata: Record<string, unknown>) {
+  return Array.isArray(privateMetadata.portalChatMessages)
+    ? (privateMetadata.portalChatMessages as StoredChatMessage[])
+    : [];
+}
+
+function getStoredForumPosts(privateMetadata: Record<string, unknown>) {
+  return Array.isArray(privateMetadata.portalForumPosts)
+    ? (privateMetadata.portalForumPosts as StoredForumPost[])
     : [];
 }
 
@@ -201,6 +283,16 @@ export async function readPortalOpportunities() {
   return getStoredOpportunities(store.privateMetadata);
 }
 
+export async function readPortalEvents() {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return [];
+  }
+
+  return getStoredEvents(store.privateMetadata);
+}
+
 export async function appendPortalOpportunity(opportunity: StoredOpportunity) {
   const store = await getPortalStoreUser();
 
@@ -216,6 +308,30 @@ export async function appendPortalOpportunity(opportunity: StoredOpportunity) {
       privateMetadata: {
         ...store.privateMetadata,
         portalOpportunities: [opportunity, ...existingOpportunities],
+      },
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function appendPortalEvent(event: StoredEvent) {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return false;
+  }
+
+  try {
+    const client = await clerkClient();
+    const existingEvents = getStoredEvents(store.privateMetadata);
+
+    await client.users.updateUserMetadata(store.userId, {
+      privateMetadata: {
+        ...store.privateMetadata,
+        portalEvents: [event, ...existingEvents.filter((item) => item.id !== event.id)],
       },
     });
 
@@ -307,5 +423,130 @@ export async function updatePortalReferralRequest(
     return updatedRequest;
   } catch {
     return null;
+  }
+}
+
+export async function readPortalChatMessages() {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return [];
+  }
+
+  return getStoredChatMessages(store.privateMetadata);
+}
+
+export async function appendPortalChatMessage(message: StoredChatMessage) {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return false;
+  }
+
+  try {
+    const client = await clerkClient();
+    const existingMessages = getStoredChatMessages(store.privateMetadata);
+    const dedupedMessages = existingMessages.filter((item) => item.id !== message.id);
+
+    await client.users.updateUserMetadata(store.userId, {
+      privateMetadata: {
+        ...store.privateMetadata,
+        portalChatMessages: [...dedupedMessages, message],
+      },
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readPortalForumPosts() {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return [];
+  }
+
+  return getStoredForumPosts(store.privateMetadata);
+}
+
+export async function appendPortalForumPost(post: StoredForumPost) {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return false;
+  }
+
+  try {
+    const client = await clerkClient();
+    const existingPosts = getStoredForumPosts(store.privateMetadata);
+
+    await client.users.updateUserMetadata(store.userId, {
+      privateMetadata: {
+        ...store.privateMetadata,
+        portalForumPosts: [post, ...existingPosts.filter((item) => item.id !== post.id)],
+      },
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function appendPortalForumReply(postId: string, reply: StoredForumReply) {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return false;
+  }
+
+  try {
+    const client = await clerkClient();
+    const existingPosts = getStoredForumPosts(store.privateMetadata);
+    const nextPosts = existingPosts.map((post) =>
+      post.id !== postId
+        ? post
+        : {
+            ...post,
+            replies: [...post.replies.filter((item) => item.id !== reply.id), reply],
+          },
+    );
+
+    await client.users.updateUserMetadata(store.userId, {
+      privateMetadata: {
+        ...store.privateMetadata,
+        portalForumPosts: nextPosts,
+      },
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function deletePortalForumPost(postId: string) {
+  const store = await getPortalStoreUser();
+
+  if (!store) {
+    return false;
+  }
+
+  try {
+    const client = await clerkClient();
+    const existingPosts = getStoredForumPosts(store.privateMetadata);
+
+    await client.users.updateUserMetadata(store.userId, {
+      privateMetadata: {
+        ...store.privateMetadata,
+        portalForumPosts: existingPosts.filter((post) => post.id !== postId),
+      },
+    });
+
+    return true;
+  } catch {
+    return false;
   }
 }

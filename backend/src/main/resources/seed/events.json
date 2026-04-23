@@ -1,0 +1,26 @@
+[
+  {
+    "id": "spring-seed-event-1",
+    "title": "Resume Review Workshop",
+    "description": "Interactive alumni session on resume structure, project bullets, and placement readiness.",
+    "eventType": "Online",
+    "location": "Google Meet",
+    "link": "https://meet.google.com/",
+    "eventDate": "2026-05-02T18:00:00+05:30",
+    "createdBy": {
+      "fullName": "Alumni Connect Team"
+    }
+  },
+  {
+    "id": "spring-seed-event-2",
+    "title": "Campus Placement Strategy Talk",
+    "description": "Faculty and alumni jointly discuss placement preparation strategy for the upcoming batch.",
+    "eventType": "Campus",
+    "location": "Seminar Hall",
+    "link": null,
+    "eventDate": "2026-05-05T10:00:00+05:30",
+    "createdBy": {
+      "fullName": "Faculty Admin"
+    }
+  }
+]

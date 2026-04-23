@@ -2,6 +2,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { getCurrentProfile, getSafeAuth } from "@/lib/auth";
 import { isClerkConfigured } from "@/lib/auth-config";
+import { resolveChatProfile } from "@/lib/chat-service";
 
 export async function SiteHeader() {
   const { userId } = await getSafeAuth();
@@ -11,6 +12,10 @@ export async function SiteHeader() {
     profile = await getCurrentProfile();
   } catch {
     profile = null;
+  }
+
+  if (!profile) {
+    profile = await resolveChatProfile();
   }
 
   const isAlumni = profile?.role === "ALUMNI";
@@ -32,6 +37,9 @@ export async function SiteHeader() {
           <Link href="/about" className="nav-link">About</Link>
           {isAlumni ? (
             <>
+              <Link href="/events" className="nav-link">Events</Link>
+              <Link href="/forum" className="nav-link">Forum</Link>
+              <Link href="/chat" className="nav-link">Chat</Link>
               <Link href="/opportunities" className="nav-link">Opportunities</Link>
               <Link href="/alumni/dashboard" className="nav-link">Dashboard</Link>
             </>

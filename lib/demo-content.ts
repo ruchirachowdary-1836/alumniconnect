@@ -242,13 +242,28 @@ export const demoChatThreads = [
     messages: [
       {
         side: "them" as const,
-        text: "Hi, I accepted your mentorship request. Let us begin with your current placement preparation status.",
+        text: "Hi, I have gone through your mentorship request. Tell me where you currently feel least confident: aptitude, technical interviews, or communication.",
         time: "10:15 AM",
       },
       {
         side: "me" as const,
-        text: "Thank you. I want guidance on resume improvement and mock interview practice.",
+        text: "Thank you for accepting. My biggest concern is technical interviews, especially explaining projects clearly under pressure.",
         time: "10:18 AM",
+      },
+      {
+        side: "them" as const,
+        text: "That is a common issue. Start with one strong project and prepare a simple flow: problem, approach, tech stack, your contribution, and measurable result.",
+        time: "10:22 AM",
+      },
+      {
+        side: "me" as const,
+        text: "That helps. I also want to improve my resume because I am not sure whether it reflects my strengths properly.",
+        time: "10:24 AM",
+      },
+      {
+        side: "them" as const,
+        text: "Send me your resume here after updating the project bullets. Keep each point focused on impact, ownership, and tools used. We can review it together before the next drive.",
+        time: "10:28 AM",
       },
     ],
   },
